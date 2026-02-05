@@ -94,17 +94,26 @@ interface CredentialSelection {
 
 ### getActive()
 
-Get active credentials without prompting (returns null if none set).
+Get active credentials with a confirmation prompt (returns null if none set or user declines).
 
 ```typescript
 import { getActive } from 'directus-auth-manager';
 
-const creds = getActive();
+// Shows confirmation prompt (default):
+//   Active Directus Credentials
+//   Name:   production
+//   Server: https://directus.example.com
+//   ? Use these credentials? (Y/n)
+
+const creds = await getActive();
 if (creds) {
   console.log(`Using ${creds.name}: ${creds.url}`);
 } else {
-  console.log('No active credentials');
+  console.log('No active credentials or user declined');
 }
+
+// Skip confirmation prompt
+const creds = await getActive({ skipConfirmation: true });
 ```
 
 ### getByName()
@@ -158,11 +167,10 @@ Here's how another CLI might use this library:
 import { promptForCredentials, getActive } from 'directus-auth-manager';
 
 async function main() {
-  // Try to use active credentials, prompt if none
-  let creds = getActive();
+  // Try to use active credentials (shows confirmation), prompt if none or declined
+  let creds = await getActive();
   
   if (!creds) {
-    console.log('No active Directus credentials found.\n');
     creds = await promptForCredentials({
       message: 'Select or enter Directus credentials:',
     });
@@ -226,6 +234,10 @@ interface PromptOptions {
   useActiveIfAvailable?: boolean;
 }
 
+interface GetActiveOptions {
+  skipConfirmation?: boolean;  // Skip confirmation prompt (default: false)
+}
+
 interface ValidationResult {
   name: string;
   success: boolean;
@@ -239,9 +251,9 @@ interface ValidationResult {
 | Function | Description |
 |----------|-------------|
 | `promptForCredentials(options?)` | Interactive prompt to select/enter credentials |
-| `getActive()` | Get active credentials (no prompt) |
-| `getByName(name)` | Get credentials by name |
-| `listSaved()` | List all saved credential names |
+| `getActive(options?)` | Get active credentials with confirmation prompt |
+| `getByName(name)` | Get credentials by name (sync, no prompt) |
+| `listSaved()` | List all saved credential names (sync) |
 | `validateCredentials(name, creds)` | Validate credentials against Directus API |
 | `validateAllCredentials(credsMap)` | Validate multiple credential sets |
 

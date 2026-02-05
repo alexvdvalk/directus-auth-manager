@@ -210,23 +210,53 @@ async function promptManualEntry(save: boolean): Promise<CredentialSelection> {
   };
 }
 
+export interface GetActiveOptions {
+  /** Skip the confirmation prompt (default: false) */
+  skipConfirmation?: boolean;
+}
+
 /**
- * Gets the active credentials without prompting.
- * Returns null if no active credentials are set.
+ * Gets the active credentials with an optional confirmation prompt.
+ * Returns null if no active credentials are set or user declines.
  * 
  * @example
  * ```typescript
  * import { getActive } from 'directus-auth-manager';
  * 
- * const creds = getActive();
- * if (creds) {
- *   console.log(creds.url, creds.token);
- * }
+ * // With confirmation prompt (default)
+ * const creds = await getActive();
+ * 
+ * // Skip confirmation
+ * const creds = await getActive({ skipConfirmation: true });
  * ```
  */
-export function getActive(): CredentialSelection | null {
+export async function getActive(
+  options: GetActiveOptions = {}
+): Promise<CredentialSelection | null> {
+  const { skipConfirmation = false } = options;
+
   const active = getActiveCredentials();
   if (!active) return null;
+
+  if (!skipConfirmation) {
+    console.log(chalk.bold('\n  Active Directus Credentials\n'));
+    console.log(`  Name:   ${chalk.green(active.name)}`);
+    console.log(`  Server: ${chalk.cyan(active.credentials.url)}`);
+    console.log();
+
+    const { confirmed } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirmed',
+        message: 'Use these credentials?',
+        default: true,
+      },
+    ]);
+
+    if (!confirmed) {
+      return null;
+    }
+  }
 
   return {
     name: active.name,
