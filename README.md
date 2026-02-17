@@ -141,6 +141,28 @@ console.log('Saved credentials:', names);
 // ['production', 'staging', 'local']
 ```
 
+### getActiveDirectusClient()
+
+Get a fully configured Directus SDK client using the active credentials.
+
+```typescript
+import { getActiveDirectusClient } from 'directus-auth-manager';
+import { readItems } from '@directus/sdk';
+
+// Define your schema for type safety
+interface MySchema {
+  posts: { id: string; title: string; content: string }[];
+  users: { id: string; email: string }[];
+}
+
+const client = getActiveDirectusClient<MySchema>();
+
+if (client) {
+  const posts = await client.request(readItems('posts'));
+  console.log(posts);
+}
+```
+
 ### validateCredentials()
 
 Validate credentials by calling the Directus API.
@@ -252,6 +274,7 @@ interface ValidationResult {
 |----------|-------------|
 | `promptForCredentials(options?)` | Interactive prompt to select/enter credentials |
 | `getActive(options?)` | Get active credentials with confirmation prompt |
+| `getActiveDirectusClient<Schema>()` | Get configured Directus SDK client with active credentials |
 | `getByName(name)` | Get credentials by name (sync, no prompt) |
 | `listSaved()` | List all saved credential names (sync) |
 | `validateCredentials(name, creds)` | Validate credentials against Directus API |

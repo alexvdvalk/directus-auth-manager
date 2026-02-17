@@ -4,6 +4,7 @@
 
 import inquirer from 'inquirer';
 import chalk from 'chalk';
+import { createDirectus, rest, staticToken } from '@directus/sdk';
 import {
   getAllCredentials,
   getCredentials,
@@ -289,5 +290,37 @@ export function listSaved(): string[] {
   return Object.keys(getAllCredentials());
 }
 
+/**
+ * Creates a Directus SDK client using the active credentials.
+ * Returns null if no active credentials are set.
+ * 
+ * @example
+ * ```typescript
+ * import { getActiveDirectusClient } from 'directus-auth-manager';
+ * 
+ * interface MySchema {
+ *   posts: { id: string; title: string; }[];
+ * }
+ * 
+ * const client = getActiveDirectusClient<MySchema>();
+ * if (client) {
+ *   const posts = await client.request(readItems('posts'));
+ * }
+ * ```
+ */
+export function getActiveDirectusClient<Schema extends object = object>() {
+  const active = getActiveCredentials();
+  if (!active) return null;
+
+  const client = createDirectus<Schema>(active.credentials.url)
+    .with(staticToken(active.credentials.token))
+    .with(rest());
+
+  return client;
+}
+
 // Re-export validation functions
 export { validateCredentials, validateAllCredentials } from './validator.js';
+
+// Re-export Directus SDK utilities for convenience
+export { createDirectus, rest, staticToken } from '@directus/sdk';
