@@ -21,7 +21,13 @@ npm install directus-auth-manager
 Run the CLI to open the interactive menu:
 
 ```bash
-directus-auth
+directus-auth-manager
+```
+
+## OR
+
+```bash
+npx directus-auth-manager
 ```
 
 ### Interactive Menu
@@ -67,7 +73,7 @@ Import and use in your own CLI tools:
 The main function - prompts the user to select saved credentials or enter them manually.
 
 ```typescript
-import { promptForCredentials } from 'directus-auth-manager';
+import { promptForCredentials } from "directus-auth-manager";
 
 // Basic usage - shows list of saved credentials + manual entry option
 const creds = await promptForCredentials();
@@ -75,20 +81,21 @@ console.log(creds.url, creds.token);
 
 // With options
 const creds = await promptForCredentials({
-  message: 'Select Directus instance:',    // Custom prompt message
-  allowManual: true,                        // Allow manual entry (default: true)
-  saveManual: true,                         // Offer to save manual entries (default: true)
-  useActiveIfAvailable: true,               // Skip prompt if active credentials exist
+  message: "Select Directus instance:", // Custom prompt message
+  allowManual: true, // Allow manual entry (default: true)
+  saveManual: true, // Offer to save manual entries (default: true)
+  useActiveIfAvailable: true, // Skip prompt if active credentials exist
 });
 ```
 
 **Returns:**
+
 ```typescript
 interface CredentialSelection {
-  name: string;      // Credential name (e.g., "production")
-  url: string;       // Directus server URL
-  token: string;     // Access token
-  source: 'saved' | 'manual';  // Where the credentials came from
+  name: string; // Credential name (e.g., "production")
+  url: string; // Directus server URL
+  token: string; // Access token
+  source: "saved" | "manual"; // Where the credentials came from
 }
 ```
 
@@ -97,7 +104,7 @@ interface CredentialSelection {
 Get active credentials with a confirmation prompt (returns null if none set or user declines).
 
 ```typescript
-import { getActive } from 'directus-auth-manager';
+import { getActive } from "directus-auth-manager";
 
 // Shows confirmation prompt (default):
 //   Active Directus Credentials
@@ -109,7 +116,7 @@ const creds = await getActive();
 if (creds) {
   console.log(`Using ${creds.name}: ${creds.url}`);
 } else {
-  console.log('No active credentials or user declined');
+  console.log("No active credentials or user declined");
 }
 
 // Skip confirmation prompt
@@ -121,9 +128,9 @@ const creds = await getActive({ skipConfirmation: true });
 Get specific credentials by name.
 
 ```typescript
-import { getByName } from 'directus-auth-manager';
+import { getByName } from "directus-auth-manager";
 
-const prod = getByName('production');
+const prod = getByName("production");
 if (prod) {
   console.log(prod.url, prod.token);
 }
@@ -134,10 +141,10 @@ if (prod) {
 Get list of all saved credential names.
 
 ```typescript
-import { listSaved } from 'directus-auth-manager';
+import { listSaved } from "directus-auth-manager";
 
 const names = listSaved();
-console.log('Saved credentials:', names);
+console.log("Saved credentials:", names);
 // ['production', 'staging', 'local']
 ```
 
@@ -146,8 +153,8 @@ console.log('Saved credentials:', names);
 Get a fully configured Directus SDK client using the active credentials.
 
 ```typescript
-import { getActiveDirectusClient } from 'directus-auth-manager';
-import { readItems } from '@directus/sdk';
+import { getActiveDirectusClient } from "directus-auth-manager";
+import { readItems } from "@directus/sdk";
 
 // Define your schema for type safety
 interface MySchema {
@@ -158,7 +165,7 @@ interface MySchema {
 const client = getActiveDirectusClient<MySchema>();
 
 if (client) {
-  const posts = await client.request(readItems('posts'));
+  const posts = await client.request(readItems("posts"));
   console.log(posts);
 }
 ```
@@ -168,15 +175,21 @@ if (client) {
 Validate credentials by calling the Directus API.
 
 ```typescript
-import { promptForCredentials, validateCredentials } from 'directus-auth-manager';
+import {
+  promptForCredentials,
+  validateCredentials,
+} from "directus-auth-manager";
 
 const creds = await promptForCredentials();
-const result = await validateCredentials(creds.name, { url: creds.url, token: creds.token });
+const result = await validateCredentials(creds.name, {
+  url: creds.url,
+  token: creds.token,
+});
 
 if (result.success) {
-  console.log('Valid!', result.user?.email);
+  console.log("Valid!", result.user?.email);
 } else {
-  console.log('Invalid:', result.message);
+  console.log("Invalid:", result.message);
 }
 ```
 
@@ -186,27 +199,27 @@ Here's how another CLI might use this library:
 
 ```typescript
 #!/usr/bin/env node
-import { promptForCredentials, getActive } from 'directus-auth-manager';
+import { promptForCredentials, getActive } from "directus-auth-manager";
 
 async function main() {
   // Try to use active credentials (shows confirmation), prompt if none or declined
   let creds = await getActive();
-  
+
   if (!creds) {
     creds = await promptForCredentials({
-      message: 'Select or enter Directus credentials:',
+      message: "Select or enter Directus credentials:",
     });
   }
-  
+
   console.log(`\nConnecting to ${creds.url}...`);
-  
+
   // Use the credentials
   const response = await fetch(`${creds.url}/items/posts`, {
     headers: { Authorization: `Bearer ${creds.token}` },
   });
-  
+
   const data = await response.json();
-  console.log('Posts:', data);
+  console.log("Posts:", data);
 }
 
 main();
@@ -246,7 +259,7 @@ interface CredentialSelection {
   name: string;
   url: string;
   token: string;
-  source: 'saved' | 'manual';
+  source: "saved" | "manual";
 }
 
 interface PromptOptions {
@@ -257,7 +270,7 @@ interface PromptOptions {
 }
 
 interface GetActiveOptions {
-  skipConfirmation?: boolean;  // Skip confirmation prompt (default: false)
+  skipConfirmation?: boolean; // Skip confirmation prompt (default: false)
 }
 
 interface ValidationResult {
@@ -270,15 +283,15 @@ interface ValidationResult {
 
 ### Functions
 
-| Function | Description |
-|----------|-------------|
-| `promptForCredentials(options?)` | Interactive prompt to select/enter credentials |
-| `getActive(options?)` | Get active credentials with confirmation prompt |
+| Function                            | Description                                                |
+| ----------------------------------- | ---------------------------------------------------------- |
+| `promptForCredentials(options?)`    | Interactive prompt to select/enter credentials             |
+| `getActive(options?)`               | Get active credentials with confirmation prompt            |
 | `getActiveDirectusClient<Schema>()` | Get configured Directus SDK client with active credentials |
-| `getByName(name)` | Get credentials by name (sync, no prompt) |
-| `listSaved()` | List all saved credential names (sync) |
-| `validateCredentials(name, creds)` | Validate credentials against Directus API |
-| `validateAllCredentials(credsMap)` | Validate multiple credential sets |
+| `getByName(name)`                   | Get credentials by name (sync, no prompt)                  |
+| `listSaved()`                       | List all saved credential names (sync)                     |
+| `validateCredentials(name, creds)`  | Validate credentials against Directus API                  |
+| `validateAllCredentials(credsMap)`  | Validate multiple credential sets                          |
 
 ## Requirements
 
