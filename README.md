@@ -51,19 +51,6 @@ Use the arrow keys to navigate and Enter to select:
   🚪  Exit
 ```
 
-### JSON Output
-
-Get active credentials as JSON for scripting:
-
-```bash
-directus-auth --json
-# {"name":"production","url":"https://directus.example.com","token":"your-token"}
-
-# Use with jq
-directus-auth --json | jq -r '.url'
-directus-auth --json | jq -r '.token'
-```
-
 ## Library Usage
 
 Import and use in your own CLI tools:

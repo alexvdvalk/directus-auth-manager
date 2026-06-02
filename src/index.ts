@@ -15,67 +15,23 @@ import {
 import { validateCredentials, validateAllCredentials } from './validator.js';
 
 /**
- * Outputs active credentials as JSON (for other CLI tools)
- */
-function outputJson(): void {
-  const active = getActiveCredentials();
-  
-  if (!active) {
-    console.error('No active credentials set');
-    process.exit(1);
-  }
-  
-  const output = {
-    name: active.name,
-    url: active.credentials.url,
-    token: active.credentials.token,
-  };
-  
-  console.log(JSON.stringify(output));
-}
-
-/**
  * Handles CLI arguments before entering interactive mode
  * Returns true if an argument was handled (exit early)
  */
 function handleCliArgs(): boolean {
   const args = process.argv.slice(2);
-  
-  if (args.includes('--json') || args.includes('-j')) {
-    outputJson();
-    return true;
-  }
-  
+
   if (args.includes('--help') || args.includes('-h')) {
     console.log(`
 ${chalk.bold('Directus Auth Manager')}
 
 ${chalk.dim('Usage:')}
   directus-auth              Open interactive menu
-  directus-auth --json       Output active credentials as JSON
   directus-auth --help       Show this help message
-
-${chalk.dim('JSON Output:')}
-  Other CLI tools can get the active credentials:
-  
-    ${chalk.cyan('directus-auth --json')}
-  
-  Returns: {"name":"...","url":"...","token":"..."}
-
-${chalk.dim('Examples:')}
-  # Get just the URL
-  directus-auth --json | jq -r '.url'
-  
-  # Get just the token
-  directus-auth --json | jq -r '.token'
-  
-  # Use in a curl command
-  curl -H "Authorization: Bearer $(directus-auth --json | jq -r '.token')" \\
-       "$(directus-auth --json | jq -r '.url')/items/posts"
 `);
     return true;
   }
-  
+
   return false;
 }
 
@@ -95,7 +51,7 @@ function maskToken(token: string): string {
 function displayHeader(): void {
   console.clear();
   console.log(chalk.bold.cyan('\n  Directus Auth Manager\n'));
-  
+
   const active = getActiveCredentials();
   if (active) {
     console.log(chalk.dim(`  Active: ${chalk.green(active.name)} (${active.credentials.url})\n`));
@@ -411,7 +367,7 @@ async function handleValidateAll(): Promise<void> {
  * Main application loop
  */
 async function main(): Promise<void> {
-  // Handle CLI arguments first (--json, --help)
+  // Handle CLI arguments first (--help)
   if (handleCliArgs()) {
     return;
   }
